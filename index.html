@@ -10,55 +10,77 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+  <!-- Animated Background Particles -->
+  <div class="particles-container">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
   <div class="container">
-    <!-- Header -->
-    <header class="header">
-      <h1><i class="fas fa-cloud-sun"></i> Weather Dashboard</h1>
+    <!-- Header with floating animation -->
+    <header class="header floating">
+      <h1><i class="fas fa-cloud-sun pulse"></i> Weather Dashboard</h1>
       <p class="subtitle">Get real-time weather information for any city</p>
     </header>
 
-    <!-- Search Section -->
-    <div class="search-section">
+    <!-- Search Section with enhanced animations -->
+    <div class="search-section slide-in-up">
       <div class="search-container">
-        <input type="text" id="cityInput" placeholder="Enter city name (e.g., London, New York)" />
-        <button onclick="getWeather()" class="search-btn">
+        <div class="input-wrapper">
+          <input type="text" id="cityInput" placeholder="Enter city name (e.g., London, New York)" />
+          <i class="fas fa-search search-icon"></i>
+        </div>
+        <button onclick="getWeather()" class="search-btn ripple-effect">
           <i class="fas fa-search"></i>
           <span>Get Weather</span>
         </button>
       </div>
+      
+      <!-- Quick cities with stagger animation -->
       <div class="quick-cities">
         <span>Quick search:</span>
-        <button class="city-btn" onclick="searchCity('London')">London</button>
-        <button class="city-btn" onclick="searchCity('New York')">New York</button>
-        <button class="city-btn" onclick="searchCity('Tokyo')">Tokyo</button>
-        <button class="city-btn" onclick="searchCity('Paris')">Paris</button>
+        <button class="city-btn bounce-hover" onclick="searchCity('London')" data-delay="0.1s">London</button>
+        <button class="city-btn bounce-hover" onclick="searchCity('New York')" data-delay="0.2s">New York</button>
+        <button class="city-btn bounce-hover" onclick="searchCity('Tokyo')" data-delay="0.3s">Tokyo</button>
+        <button class="city-btn bounce-hover" onclick="searchCity('Paris')" data-delay="0.4s">Paris</button>
+        <button class="city-btn bounce-hover" onclick="searchCity('Dubai')" data-delay="0.5s">Dubai</button>
       </div>
     </div>
 
-    <!-- Loading Spinner -->
+    <!-- Loading Spinner with enhanced animation -->
     <div id="loading" class="loading" style="display:none">
-      <div class="spinner"></div>
-      <p>Fetching weather data...</p>
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <div class="loading-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <p class="loading-text">Fetching weather data...</p>
     </div>
 
-    <!-- Error Message -->
-    <div id="errorMessage" class="error-message" style="display:none">
+    <!-- Error Message with shake animation -->
+    <div id="errorMessage" class="error-message shake" style="display:none">
       <i class="fas fa-exclamation-triangle"></i>
       <span id="errorText"></span>
     </div>
 
-    <!-- Current Weather -->
-    <div id="weatherResult" class="weather-card" style="display:none">
+    <!-- Current Weather with enhanced animations -->
+    <div id="weatherResult" class="weather-card fade-in-scale" style="display:none">
       <div class="weather-header">
         <div class="location-info">
-          <h2 id="cityName"></h2>
+          <h2 id="cityName" class="glow-text"></h2>
           <p id="countryName"></p>
-          <p id="currentTime"></p>
+          <p id="currentTime" class="pulse-soft"></p>
         </div>
         <div class="weather-main">
-          <img id="weatherIcon" src="" alt="Weather Icon" />
+          <img id="weatherIcon" src="" alt="Weather Icon" class="weather-icon-spin" />
           <div class="temperature">
-            <span id="temperature"></span>
+            <span id="temperature" class="temp-glow"></span>
             <div class="unit-toggle">
               <button id="celsiusBtn" class="unit-btn active">°C</button>
               <button id="fahrenheitBtn" class="unit-btn">°F</button>
@@ -68,46 +90,46 @@
       </div>
       
       <div class="weather-description">
-        <h3 id="weatherMain"></h3>
+        <h3 id="weatherMain" class="typing-effect"></h3>
         <p id="weatherDescription"></p>
       </div>
 
       <div class="weather-details">
-        <div class="detail-item">
+        <div class="detail-item hover-lift" data-delay="0.1s">
           <i class="fas fa-eye"></i>
           <span>Feels like</span>
-          <span id="feelsLike"></span>
+          <span id="feelsLike" class="detail-value"></span>
         </div>
-        <div class="detail-item">
+        <div class="detail-item hover-lift" data-delay="0.2s">
           <i class="fas fa-tint"></i>
           <span>Humidity</span>
-          <span id="humidity"></span>
+          <span id="humidity" class="detail-value"></span>
         </div>
-        <div class="detail-item">
+        <div class="detail-item hover-lift" data-delay="0.3s">
           <i class="fas fa-wind"></i>
           <span>Wind Speed</span>
-          <span id="windSpeed"></span>
+          <span id="windSpeed" class="detail-value"></span>
         </div>
-        <div class="detail-item">
+        <div class="detail-item hover-lift" data-delay="0.4s">
           <i class="fas fa-thermometer-half"></i>
           <span>Pressure</span>
-          <span id="pressure"></span>
+          <span id="pressure" class="detail-value"></span>
         </div>
-        <div class="detail-item">
+        <div class="detail-item hover-lift" data-delay="0.5s">
           <i class="fas fa-sun"></i>
           <span>UV Index</span>
-          <span id="uvIndex"></span>
+          <span id="uvIndex" class="detail-value"></span>
         </div>
-        <div class="detail-item">
+        <div class="detail-item hover-lift" data-delay="0.6s">
           <i class="fas fa-eye-low-vision"></i>
           <span>Visibility</span>
-          <span id="visibility"></span>
+          <span id="visibility" class="detail-value"></span>
         </div>
       </div>
     </div>
 
-    <!-- Forecast Section -->
-    <div id="forecast" class="forecast-section" style="display:none">
+    <!-- Forecast Section with card animations -->
+    <div id="forecast" class="forecast-section slide-in-up" style="display:none">
       <h3><i class="fas fa-calendar-alt"></i> 5-Day Forecast</h3>
       <div id="forecastContainer" class="forecast-grid"></div>
     </div>
