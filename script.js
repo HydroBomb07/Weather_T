@@ -13,17 +13,30 @@ class WeatherDashboard {
   init() {
     this.setupEventListeners();
     this.getUserLocation();
+    this.initializeAnimations();
+    this.createInteractiveEffects();
   }
 
   setupEventListeners() {
-    // Enter key support for input
+    // Enhanced enter key support with animation
     document.getElementById('cityInput').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
+        this.animateSearch();
         this.getWeather();
       }
     });
 
-    // Unit toggle buttons
+    // Input focus animations
+    const cityInput = document.getElementById('cityInput');
+    cityInput.addEventListener('focus', () => {
+      cityInput.parentElement.style.transform = 'scale(1.05)';
+    });
+    
+    cityInput.addEventListener('blur', () => {
+      cityInput.parentElement.style.transform = 'scale(1)';
+    });
+
+    // Unit toggle buttons with enhanced animations
     document.getElementById('celsiusBtn').addEventListener('click', () => {
       this.toggleUnit('metric');
     });
@@ -31,6 +44,112 @@ class WeatherDashboard {
     document.getElementById('fahrenheitBtn').addEventListener('click', () => {
       this.toggleUnit('imperial');
     });
+
+    // Search button with ripple effect
+    document.querySelector('.search-btn').addEventListener('click', (e) => {
+      this.createRippleEffect(e);
+      this.animateSearch();
+    });
+  }
+
+  initializeAnimations() {
+    // Stagger animation for quick city buttons
+    const cityButtons = document.querySelectorAll('.city-btn');
+    cityButtons.forEach((btn, index) => {
+      btn.style.setProperty('--delay', `${index * 0.1}s`);
+      btn.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Initialize typing effect for weather description
+    this.setupTypingEffect();
+  }
+
+  createInteractiveEffects() {
+    // Mouse move parallax effect
+    document.addEventListener('mousemove', (e) => {
+      const mouseX = e.clientX / window.innerWidth;
+      const mouseY = e.clientY / window.innerHeight;
+      
+      const particles = document.querySelectorAll('.particle');
+      particles.forEach((particle, index) => {
+        const speed = (index + 1) * 0.02;
+        const x = mouseX * speed * 10;
+        const y = mouseY * speed * 10;
+        particle.style.transform = `translate(${x}px, ${y}px)`;
+      });
+    });
+
+    // Add floating particles effect
+    this.createFloatingParticles();
+  }
+
+  createFloatingParticles() {
+    const particlesContainer = document.querySelector('.particles-container');
+    
+    setInterval(() => {
+      if (Math.random() > 0.7) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+        particle.style.backgroundColor = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.3})`;
+        particlesContainer.appendChild(particle);
+        
+        setTimeout(() => {
+          particle.remove();
+        }, 25000);
+      }
+    }, 3000);
+  }
+
+  createRippleEffect(event) {
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.classList.add('ripple');
+    
+    button.appendChild(ripple);
+    
+    setTimeout(() => {
+      ripple.remove();
+    }, 600);
+  }
+
+  animateSearch() {
+    const searchBtn = document.querySelector('.search-btn');
+    searchBtn.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+      searchBtn.style.transform = '';
+    }, 150);
+  }
+
+  setupTypingEffect() {
+    // This will be called when weather data is displayed
+    this.typeWriterEffect = (element, text, speed = 50) => {
+      element.innerHTML = '';
+      element.style.borderRight = '2px solid white';
+      
+      let i = 0;
+      const typeWriter = () => {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(typeWriter, speed);
+        } else {
+          setTimeout(() => {
+            element.style.borderRight = 'none';
+          }, 1000);
+        }
+      };
+      typeWriter();
+    };
   }
 
   async getUserLocation() {
@@ -63,8 +182,14 @@ class WeatherDashboard {
       const weatherData = await this.fetchWeatherByCity(city);
       const forecastData = await this.fetchForecastByCity(city);
       
-      this.displayWeather(weatherData);
-      this.displayForecast(forecastData);
+      // Add staggered animation delay
+      setTimeout(() => {
+        this.displayWeather(weatherData);
+      }, 300);
+      
+      setTimeout(() => {
+        this.displayForecast(forecastData);
+      }, 600);
       
     } catch (error) {
       this.showError(error.message);
@@ -93,6 +218,7 @@ class WeatherDashboard {
     }
   }
 
+  // ... keep existing code (fetch methods remain the same)
   async fetchWeatherByCity(city) {
     const url = `${this.baseUrl}/weather?q=${encodeURIComponent(city)}&appid=${this.apiKey}&units=${this.currentUnit}`;
     return this.fetchWeatherData(url);
@@ -144,7 +270,7 @@ class WeatherDashboard {
   displayWeather(data) {
     this.currentWeatherData = data;
     
-    // Update DOM elements
+    // Update DOM elements with enhanced animations
     document.getElementById('cityName').textContent = data.name;
     document.getElementById('countryName').textContent = data.sys.country;
     document.getElementById('currentTime').textContent = this.formatDateTime(new Date());
@@ -152,7 +278,10 @@ class WeatherDashboard {
     document.getElementById('weatherIcon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
     document.getElementById('temperature').textContent = Math.round(data.main.temp);
     
-    document.getElementById('weatherMain').textContent = data.weather[0].main;
+    // Use typing effect for weather main
+    const weatherMainElement = document.getElementById('weatherMain');
+    this.typeWriterEffect(weatherMainElement, data.weather[0].main);
+    
     document.getElementById('weatherDescription').textContent = data.weather[0].description;
     
     document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°${this.getUnitSymbol()}`;
@@ -164,7 +293,14 @@ class WeatherDashboard {
     // UV Index would require additional API call, showing placeholder
     document.getElementById('uvIndex').textContent = 'N/A';
     
-    // Show weather card
+    // Add staggered animation to detail items
+    const detailItems = document.querySelectorAll('.detail-item');
+    detailItems.forEach((item, index) => {
+      item.style.setProperty('--delay', `${index * 0.1}s`);
+      item.style.animationDelay = `${index * 0.1}s`;
+    });
+    
+    // Show weather card with animation
     document.getElementById('weatherResult').style.display = 'block';
   }
 
@@ -175,9 +311,10 @@ class WeatherDashboard {
     // Get daily forecasts (one per day for next 5 days)
     const dailyForecasts = this.processForecastData(data.list);
     
-    dailyForecasts.forEach(forecast => {
+    dailyForecasts.forEach((forecast, index) => {
       const forecastItem = document.createElement('div');
       forecastItem.className = 'forecast-item';
+      forecastItem.style.animationDelay = `${index * 0.1}s`;
       
       forecastItem.innerHTML = `
         <div class="day">${forecast.day}</div>
@@ -190,6 +327,15 @@ class WeatherDashboard {
         <div class="description">${forecast.description}</div>
       `;
       
+      // Add hover effects
+      forecastItem.addEventListener('mouseenter', () => {
+        forecastItem.style.transform = 'translateY(-8px) scale(1.02)';
+      });
+      
+      forecastItem.addEventListener('mouseleave', () => {
+        forecastItem.style.transform = '';
+      });
+      
       forecastContainer.appendChild(forecastItem);
     });
     
@@ -197,6 +343,7 @@ class WeatherDashboard {
     document.getElementById('forecast').style.display = 'block';
   }
 
+  // ... keep existing code (processForecastData method remains the same)
   processForecastData(forecastList) {
     const dailyData = {};
     
@@ -227,9 +374,19 @@ class WeatherDashboard {
     
     this.currentUnit = unit;
     
-    // Update active button
-    document.getElementById('celsiusBtn').classList.toggle('active', unit === 'metric');
-    document.getElementById('fahrenheitBtn').classList.toggle('active', unit === 'imperial');
+    // Update active button with animation
+    const celsiusBtn = document.getElementById('celsiusBtn');
+    const fahrenheitBtn = document.getElementById('fahrenheitBtn');
+    
+    celsiusBtn.classList.toggle('active', unit === 'metric');
+    fahrenheitBtn.classList.toggle('active', unit === 'imperial');
+    
+    // Add scale animation to active button
+    const activeBtn = unit === 'metric' ? celsiusBtn : fahrenheitBtn;
+    activeBtn.style.transform = 'scale(1.2)';
+    setTimeout(() => {
+      activeBtn.style.transform = '';
+    }, 200);
     
     // Refresh data if available
     if (this.currentWeatherData) {
@@ -240,6 +397,7 @@ class WeatherDashboard {
     }
   }
 
+  // ... keep existing code (utility methods remain the same)
   getUnitSymbol() {
     return this.currentUnit === 'metric' ? 'C' : 'F';
   }
@@ -261,6 +419,7 @@ class WeatherDashboard {
 
   searchCity(cityName) {
     document.getElementById('cityInput').value = cityName;
+    this.animateSearch();
     this.getWeather();
   }
 
@@ -276,7 +435,15 @@ class WeatherDashboard {
 
   showError(message) {
     document.getElementById('errorText').textContent = message;
-    document.getElementById('errorMessage').style.display = 'flex';
+    const errorElement = document.getElementById('errorMessage');
+    errorElement.style.display = 'flex';
+    errorElement.classList.add('shake');
+    
+    // Remove shake class after animation
+    setTimeout(() => {
+      errorElement.classList.remove('shake');
+    }, 600);
+    
     document.getElementById('weatherResult').style.display = 'none';
     document.getElementById('forecast').style.display = 'none';
   }
