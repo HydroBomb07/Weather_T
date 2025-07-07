@@ -60,21 +60,21 @@ export const useCursorTrail = () => {
       y,
       timestamp: currentTime,
       life: 1.0,
-      size: Math.random() * 2 + 3,
+      size: Math.random() * 1.5 + 2, // Smaller, more refined particles
       velocity: {
-        x: velocity.x * 0.3 + (Math.random() - 0.5) * 0.2,
-        y: velocity.y * 0.3 + (Math.random() - 0.5) * 0.2,
+        x: velocity.x * 0.2 + (Math.random() - 0.5) * 0.1,
+        y: velocity.y * 0.2 + (Math.random() - 0.5) * 0.1,
       },
       originalX: x,
       originalY: y,
       orbitAngle: Math.random() * Math.PI * 2,
-      orbitRadius: Math.random() * 20 + 10,
+      orbitRadius: Math.random() * 8 + 3, // Smaller orbit radius
     };
 
     trailPoints.current.push(point);
 
-    // Limit trail length for performance
-    if (trailPoints.current.length > 60) {
+    // Reduced trail length for better performance
+    if (trailPoints.current.length > 35) {
       trailPoints.current.shift();
     }
   }, []);
