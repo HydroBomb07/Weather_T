@@ -53,24 +53,28 @@ export const useCursorTrail = () => {
     };
   }, []);
 
-  const addTrailPoint = useCallback((x, y) => {
+  const addTrailPoint = useCallback((x, y, velocity = { x: 0, y: 0 }) => {
     const currentTime = Date.now();
     const point = {
       x,
       y,
       timestamp: currentTime,
       life: 1.0,
-      size: Math.random() * 3 + 2,
+      size: Math.random() * 2 + 3,
       velocity: {
-        x: (Math.random() - 0.5) * 0.5,
-        y: (Math.random() - 0.5) * 0.5,
+        x: velocity.x * 0.3 + (Math.random() - 0.5) * 0.2,
+        y: velocity.y * 0.3 + (Math.random() - 0.5) * 0.2,
       },
+      originalX: x,
+      originalY: y,
+      orbitAngle: Math.random() * Math.PI * 2,
+      orbitRadius: Math.random() * 20 + 10,
     };
 
     trailPoints.current.push(point);
 
     // Limit trail length for performance
-    if (trailPoints.current.length > 50) {
+    if (trailPoints.current.length > 60) {
       trailPoints.current.shift();
     }
   }, []);
