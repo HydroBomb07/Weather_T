@@ -6,6 +6,7 @@ export const useCursorTrail = () => {
   const lastTime = useRef(0);
   const canvas = useRef(null);
   const ctx = useRef(null);
+  const mainCursor = useRef(null);
 
   const initCanvas = useCallback(() => {
     // Create canvas for smooth trail rendering
