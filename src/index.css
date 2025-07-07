@@ -46,41 +46,38 @@
     position: fixed;
     pointer-events: none;
     z-index: 10000;
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(139, 92, 246, 0.8) 30%,
-      rgba(59, 130, 246, 0.6) 60%,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(139, 92, 246, 0.6) 40%,
+      rgba(59, 130, 246, 0.3) 70%,
       transparent 100%
     );
     box-shadow:
-      0 0 5px rgba(255, 255, 255, 0.8),
-      0 0 10px rgba(139, 92, 246, 0.8),
-      0 0 20px rgba(59, 130, 246, 0.6),
-      0 0 30px rgba(236, 72, 153, 0.4);
-    transition: transform 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      0 0 4px rgba(255, 255, 255, 0.6),
+      0 0 8px rgba(139, 92, 246, 0.5),
+      0 0 12px rgba(59, 130, 246, 0.3);
+    transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     mix-blend-mode: screen;
-    animation: cursor-pulse 2s ease-in-out infinite;
+    animation: cursor-pulse 3s ease-in-out infinite;
   }
 
   @keyframes cursor-pulse {
     0%,
     100% {
       box-shadow:
-        0 0 5px rgba(255, 255, 255, 0.8),
-        0 0 10px rgba(139, 92, 246, 0.8),
-        0 0 20px rgba(59, 130, 246, 0.6),
-        0 0 30px rgba(236, 72, 153, 0.4);
+        0 0 4px rgba(255, 255, 255, 0.6),
+        0 0 8px rgba(139, 92, 246, 0.5),
+        0 0 12px rgba(59, 130, 246, 0.3);
     }
     50% {
       box-shadow:
-        0 0 8px rgba(255, 255, 255, 1),
-        0 0 15px rgba(139, 92, 246, 1),
-        0 0 25px rgba(59, 130, 246, 0.8),
-        0 0 40px rgba(236, 72, 153, 0.6);
+        0 0 6px rgba(255, 255, 255, 0.8),
+        0 0 12px rgba(139, 92, 246, 0.7),
+        0 0 18px rgba(59, 130, 246, 0.5);
     }
   }
 
