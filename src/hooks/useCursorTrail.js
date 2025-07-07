@@ -9,6 +9,11 @@ export const useCursorTrail = () => {
   const mainCursor = useRef(null);
 
   const initCanvas = useCallback(() => {
+    // Create main cursor element
+    mainCursor.current = document.createElement("div");
+    mainCursor.current.className = "cursor-main";
+    document.body.appendChild(mainCursor.current);
+
     // Create canvas for smooth trail rendering
     canvas.current = document.createElement("canvas");
     canvas.current.style.position = "fixed";
@@ -20,20 +25,30 @@ export const useCursorTrail = () => {
 
     // Set canvas size
     const updateCanvasSize = () => {
-      canvas.current.width = window.innerWidth;
-      canvas.current.height = window.innerHeight;
+      canvas.current.width = window.innerWidth * window.devicePixelRatio;
+      canvas.current.height = window.innerHeight * window.devicePixelRatio;
+      canvas.current.style.width = window.innerWidth + "px";
+      canvas.current.style.height = window.innerHeight + "px";
+
+      if (ctx.current) {
+        ctx.current.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
     };
 
     updateCanvasSize();
     window.addEventListener("resize", updateCanvasSize);
 
     ctx.current = canvas.current.getContext("2d");
+    ctx.current.scale(window.devicePixelRatio, window.devicePixelRatio);
     document.body.appendChild(canvas.current);
 
     return () => {
       window.removeEventListener("resize", updateCanvasSize);
       if (canvas.current && document.body.contains(canvas.current)) {
         document.body.removeChild(canvas.current);
+      }
+      if (mainCursor.current && document.body.contains(mainCursor.current)) {
+        document.body.removeChild(mainCursor.current);
       }
     };
   }, []);
