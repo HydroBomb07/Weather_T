@@ -1,6 +1,7 @@
 {
   "name": "weather-dashboard",
   "version": "1.0.0",
+  "type": "module",
   "description": "A modern weather dashboard with React and Tailwind",
   "scripts": {
     "dev": "vite",
