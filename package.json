@@ -1,0 +1,12 @@
+{
+  "name": "weather-dashboard",
+  "version": "1.0.0",
+  "description": "A beautiful weather dashboard application",
+  "scripts": {
+    "dev": "npx serve -s . -p 3000",
+    "start": "npx serve -s . -p 3000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
