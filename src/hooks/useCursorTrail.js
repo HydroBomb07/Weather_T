@@ -91,13 +91,25 @@ export const useCursorTrail = () => {
     ctx.current.fillStyle = "rgba(0, 0, 0, 0.1)";
     ctx.current.fillRect(0, 0, canvas.current.width, canvas.current.height);
 
-    // Update trail points
+    // Update trail points with orbital movement
     trailPoints.current = trailPoints.current.filter((point) => {
       // Update point properties
-      point.life -= deltaTime * 0.003; // Fade over time
-      point.x += point.velocity.x;
-      point.y += point.velocity.y;
-      point.size *= 0.99; // Shrink over time
+      point.life -= deltaTime * 0.002; // Slower fade for longer trails
+
+      // Orbital movement around original position
+      point.orbitAngle += deltaTime * 0.001;
+      const orbitX =
+        Math.cos(point.orbitAngle) * point.orbitRadius * point.life;
+      const orbitY =
+        Math.sin(point.orbitAngle) * point.orbitRadius * point.life;
+
+      point.x =
+        point.originalX + point.velocity.x * (1 - point.life) * 50 + orbitX;
+      point.y =
+        point.originalY + point.velocity.y * (1 - point.life) * 50 + orbitY;
+
+      point.size *= 0.998; // Slower shrink
+      point.orbitRadius *= 0.99; // Shrinking orbit
 
       return point.life > 0;
     });
