@@ -225,14 +225,37 @@ export const useCursorTrail = () => {
 
   useEffect(() => {
     const cleanupCanvas = initCanvas();
+    let lastMousePos = { x: 0, y: 0 };
+    let mouseVelocity = { x: 0, y: 0 };
 
     const handleMouseMove = (e) => {
       const currentTime = Date.now();
-      if (currentTime - lastTime.current > 8) {
+      const deltaTime = currentTime - lastTime.current;
+
+      // Calculate velocity
+      if (deltaTime > 0) {
+        mouseVelocity.x = (e.clientX - lastMousePos.x) / deltaTime;
+        mouseVelocity.y = (e.clientY - lastMousePos.y) / deltaTime;
+      }
+
+      // Update main cursor position
+      if (mainCursor.current) {
+        mainCursor.current.style.left = `${e.clientX - 6}px`;
+        mainCursor.current.style.top = `${e.clientY - 6}px`;
+
+        // Scale based on velocity for dynamic effect
+        const speed = Math.sqrt(mouseVelocity.x ** 2 + mouseVelocity.y ** 2);
+        const scale = Math.min(1 + speed * 0.5, 2);
+        mainCursor.current.style.transform = `scale(${scale})`;
+      }
+
+      if (currentTime - lastTime.current > 6) {
         // Higher frequency for smoother trail
-        addTrailPoint(e.clientX, e.clientY);
+        addTrailPoint(e.clientX, e.clientY, mouseVelocity);
         lastTime.current = currentTime;
       }
+
+      lastMousePos = { x: e.clientX, y: e.clientY };
     };
 
     const handleMouseEnter = () => {
