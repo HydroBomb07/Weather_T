@@ -42,15 +42,24 @@
     @apply bg-text-shimmer bg-[length:200%_100%] animate-text-shimmer;
   }
 
-  .cursor-trail-dot {
+  .cursor-main {
     position: fixed;
     pointer-events: none;
-    z-index: 9999;
-    width: 8px;
-    height: 8px;
+    z-index: 10000;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
-    animation: cursor-trail 0.8s ease-out forwards;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.8) 0%,
+      rgba(139, 92, 246, 0.6) 50%,
+      transparent 100%
+    );
+    box-shadow:
+      0 0 10px rgba(139, 92, 246, 0.8),
+      0 0 20px rgba(59, 130, 246, 0.4);
+    transition: transform 0.1s ease-out;
+    mix-blend-mode: screen;
   }
 
   .floating-particle {
