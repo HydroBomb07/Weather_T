@@ -86,132 +86,110 @@ export const useCursorTrail = () => {
     const deltaTime = currentTime - lastTime.current;
     lastTime.current = currentTime;
 
-    // Clear canvas with fade effect
+    // Clear canvas with smoother fade effect
     ctx.current.globalCompositeOperation = "source-over";
-    ctx.current.fillStyle = "rgba(0, 0, 0, 0.1)";
-    ctx.current.fillRect(0, 0, canvas.current.width, canvas.current.height);
+    ctx.current.fillStyle = "rgba(0, 0, 0, 0.08)"; // Gentler fade for smoother trails
+    ctx.current.fillRect(
+      0,
+      0,
+      canvas.current.width / window.devicePixelRatio,
+      canvas.current.height / window.devicePixelRatio,
+    );
 
-    // Update trail points with orbital movement
+    // Update trail points with smoother orbital movement
     trailPoints.current = trailPoints.current.filter((point) => {
-      // Update point properties
-      point.life -= deltaTime * 0.002; // Slower fade for longer trails
+      // Smoother exponential fade
+      point.life *= Math.pow(0.96, deltaTime / 16); // Exponential decay for smoother fade
 
-      // Orbital movement around original position
-      point.orbitAngle += deltaTime * 0.001;
+      // Gentler orbital movement
+      point.orbitAngle += deltaTime * 0.0008;
+      const fadeBasedOrbit = point.life * point.life; // Quadratic fade for smoother effect
       const orbitX =
-        Math.cos(point.orbitAngle) * point.orbitRadius * point.life;
+        Math.cos(point.orbitAngle) * point.orbitRadius * fadeBasedOrbit;
       const orbitY =
-        Math.sin(point.orbitAngle) * point.orbitRadius * point.life;
+        Math.sin(point.orbitAngle) * point.orbitRadius * fadeBasedOrbit;
 
       point.x =
-        point.originalX + point.velocity.x * (1 - point.life) * 50 + orbitX;
+        point.originalX + point.velocity.x * (1 - point.life) * 30 + orbitX;
       point.y =
-        point.originalY + point.velocity.y * (1 - point.life) * 50 + orbitY;
+        point.originalY + point.velocity.y * (1 - point.life) * 30 + orbitY;
 
-      point.size *= 0.998; // Slower shrink
-      point.orbitRadius *= 0.99; // Shrinking orbit
+      point.size *= 0.9995; // Much slower shrink for smoother effect
+      point.orbitRadius *= 0.992; // Gradual orbit shrinking
 
-      return point.life > 0;
+      return point.life > 0.01; // Keep points longer for smoother fade
     });
 
     if (trailPoints.current.length > 1) {
-      // Create gradient trail effect
       ctx.current.globalCompositeOperation = "lighter";
 
-      // Draw connecting lines with gradient
-      for (let i = 0; i < trailPoints.current.length - 1; i++) {
+      // Draw smooth connecting curves instead of sharp lines
+      for (let i = 0; i < trailPoints.current.length - 2; i++) {
         const current = trailPoints.current[i];
         const next = trailPoints.current[i + 1];
+        const after = trailPoints.current[i + 2];
 
-        if (!current || !next) continue;
+        if (!current || !next || !after) continue;
 
-        // Create gradient for the line segment
+        // Calculate control points for smooth curves
+        const cp1x = current.x + (next.x - current.x) * 0.5;
+        const cp1y = current.y + (next.y - current.y) * 0.5;
+        const cp2x = next.x + (after.x - current.x) * 0.1;
+        const cp2y = next.y + (after.y - current.y) * 0.1;
+
+        const alpha = Math.pow(current.life, 1.5); // Softer alpha curve
+
+        // Soft gradient with more subtle colors
         const gradient = ctx.current.createLinearGradient(
           current.x,
           current.y,
           next.x,
           next.y,
         );
+        gradient.addColorStop(0, `rgba(139, 92, 246, ${alpha * 0.4})`);
+        gradient.addColorStop(0.5, `rgba(59, 130, 246, ${alpha * 0.3})`);
+        gradient.addColorStop(1, `rgba(236, 72, 153, ${alpha * 0.2})`);
 
-        const currentAlpha = current.life * 0.8;
-        const nextAlpha = next.life * 0.8;
-
-        gradient.addColorStop(0, `rgba(59, 130, 246, ${currentAlpha})`);
-        gradient.addColorStop(
-          0.3,
-          `rgba(139, 92, 246, ${(currentAlpha + nextAlpha) / 2})`,
-        );
-        gradient.addColorStop(
-          0.7,
-          `rgba(236, 72, 153, ${(currentAlpha + nextAlpha) / 2})`,
-        );
-        gradient.addColorStop(1, `rgba(245, 158, 11, ${nextAlpha})`);
-
-        // Draw line with glow effect
+        // Draw smooth curve with soft glow
         ctx.current.strokeStyle = gradient;
-        ctx.current.lineWidth =
-          Math.max(current.size, next.size) * current.life;
+        ctx.current.lineWidth = current.size * alpha * 0.8; // Thinner lines
         ctx.current.lineCap = "round";
         ctx.current.lineJoin = "round";
 
-        // Outer glow
-        ctx.current.shadowColor = `rgba(139, 92, 246, ${current.life * 0.8})`;
-        ctx.current.shadowBlur = 15;
+        // Soft outer glow
+        ctx.current.shadowColor = `rgba(139, 92, 246, ${alpha * 0.3})`;
+        ctx.current.shadowBlur = 8;
 
         ctx.current.beginPath();
         ctx.current.moveTo(current.x, current.y);
-        ctx.current.lineTo(next.x, next.y);
-        ctx.current.stroke();
-
-        // Inner bright line
-        ctx.current.shadowBlur = 5;
-        ctx.current.shadowColor = `rgba(255, 255, 255, ${current.life * 0.6})`;
-        ctx.current.lineWidth =
-          Math.max(current.size, next.size) * current.life * 0.3;
+        ctx.current.quadraticCurveTo(cp1x, cp1y, next.x, next.y);
         ctx.current.stroke();
       }
 
-      // Draw glowing particles at trail points
+      // Draw subtle particle glow only for recent points
       trailPoints.current.forEach((point, index) => {
-        if (index % 3 === 0) {
-          // Every 3rd point for performance
-          const alpha = point.life;
-          const size = point.size * alpha;
+        if (index % 4 === 0 && point.life > 0.3) {
+          // Less frequent, only bright points
+          const alpha = Math.pow(point.life, 2); // Quadratic fade for softer appearance
+          const size = point.size * alpha * 0.7;
 
-          // Outer glow
+          // Single soft glow instead of multiple layers
           const glowGradient = ctx.current.createRadialGradient(
             point.x,
             point.y,
             0,
             point.x,
             point.y,
-            size * 3,
+            size * 2.5,
           );
-          glowGradient.addColorStop(0, `rgba(139, 92, 246, ${alpha * 0.8})`);
-          glowGradient.addColorStop(0.5, `rgba(59, 130, 246, ${alpha * 0.4})`);
+          glowGradient.addColorStop(0, `rgba(255, 255, 255, ${alpha * 0.3})`);
+          glowGradient.addColorStop(0.3, `rgba(139, 92, 246, ${alpha * 0.2})`);
+          glowGradient.addColorStop(0.7, `rgba(59, 130, 246, ${alpha * 0.1})`);
           glowGradient.addColorStop(1, "rgba(59, 130, 246, 0)");
 
           ctx.current.fillStyle = glowGradient;
           ctx.current.beginPath();
-          ctx.current.arc(point.x, point.y, size * 3, 0, Math.PI * 2);
-          ctx.current.fill();
-
-          // Core particle
-          const coreGradient = ctx.current.createRadialGradient(
-            point.x,
-            point.y,
-            0,
-            point.x,
-            point.y,
-            size,
-          );
-          coreGradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
-          coreGradient.addColorStop(0.8, `rgba(139, 92, 246, ${alpha * 0.8})`);
-          coreGradient.addColorStop(1, "rgba(139, 92, 246, 0)");
-
-          ctx.current.fillStyle = coreGradient;
-          ctx.current.beginPath();
-          ctx.current.arc(point.x, point.y, size, 0, Math.PI * 2);
+          ctx.current.arc(point.x, point.y, size * 2.5, 0, Math.PI * 2);
           ctx.current.fill();
         }
       });
