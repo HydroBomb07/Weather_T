@@ -1,140 +1,109 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🌤️ Weather Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css"/>
-</head>
-<body>
-  <!-- Animated Background Particles -->
-  <div class="particles-container">
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/weather-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌤️ WeatherLux - Premium Weather Experience</title>
+    <meta
+      name="description"
+      content="Experience weather like never before with stunning visuals and real-time data"
+    />
 
-  <div class="container">
-    <!-- Header with floating animation -->
-    <header class="header floating">
-      <h1><i class="fas fa-cloud-sun pulse"></i> Weather Dashboard</h1>
-      <p class="subtitle">Get real-time weather information for any city</p>
-    </header>
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://api.openweathermap.org" />
+    <link rel="preconnect" href="https://openweathermap.org" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Search Section with enhanced animations -->
-    <div class="search-section slide-in-up">
-      <div class="search-container">
-        <div class="input-wrapper">
-          <input type="text" id="cityInput" placeholder="Enter city name (e.g., London, New York)" />
-          <i class="fas fa-search search-icon"></i>
-        </div>
-        <button onclick="getWeather()" class="search-btn ripple-effect">
-          <i class="fas fa-search"></i>
-          <span>Get Weather</span>
-        </button>
-      </div>
-      
-      <!-- Quick cities with stagger animation -->
-      <div class="quick-cities">
-        <span>Quick search:</span>
-        <button class="city-btn bounce-hover" onclick="searchCity('titwala')" data-delay="0.1s">Titwala</button>
-        <button class="city-btn bounce-hover" onclick="searchCity('nagpur')" data-delay="0.2s">Nagpur</button>
-        <button class="city-btn bounce-hover" onclick="searchCity('Tokyo')" data-delay="0.3s">Tokyo</button>
-        <button class="city-btn bounce-hover" onclick="searchCity('Paris')" data-delay="0.4s">Paris</button>
-        <button class="city-btn bounce-hover" onclick="searchCity('Dubai')" data-delay="0.5s">Dubai</button>
-      </div>
+    <!-- Load Inter font for better performance -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Performance optimizations -->
+    <link rel="dns-prefetch" href="https://api.openweathermap.org" />
+
+    <style>
+      /* Critical CSS for immediate paint */
+      body {
+        margin: 0;
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #581c87 50%,
+          #0f172a 100%
+        );
+        font-family: "Inter", sans-serif;
+        cursor: none;
+      }
+
+      #root {
+        min-height: 100vh;
+      }
+
+      /* Loading state */
+      .initial-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #581c87 50%,
+          #0f172a 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .loader-pulse {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Initial loading indicator -->
+    <div id="initial-loader" class="initial-loader">
+      <div class="loader-pulse"></div>
     </div>
 
-    <!-- Loading Spinner with enhanced animation -->
-    <div id="loading" class="loading" style="display:none">
-      <div class="spinner-container">
-        <div class="spinner"></div>
-        <div class="loading-dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>
-      <p class="loading-text">Fetching weather data...</p>
-    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
 
-    <!-- Error Message with shake animation -->
-    <div id="errorMessage" class="error-message shake" style="display:none">
-      <i class="fas fa-exclamation-triangle"></i>
-      <span id="errorText"></span>
-    </div>
-
-    <!-- Current Weather with enhanced animations -->
-    <div id="weatherResult" class="weather-card fade-in-scale" style="display:none">
-      <div class="weather-header">
-        <div class="location-info">
-          <h2 id="cityName" class="glow-text"></h2>
-          <p id="countryName"></p>
-          <p id="currentTime" class="pulse-soft"></p>
-        </div>
-        <div class="weather-main">
-          <img id="weatherIcon" src="" alt="Weather Icon" class="weather-icon-spin" />
-          <div class="temperature">
-            <span id="temperature" class="temp-glow"></span>
-            <div class="unit-toggle">
-              <button id="celsiusBtn" class="unit-btn active">°C</button>
-              <button id="fahrenheitBtn" class="unit-btn">°F</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="weather-description">
-        <h3 id="weatherMain" class="typing-effect"></h3>
-        <p id="weatherDescription"></p>
-      </div>
-
-      <div class="weather-details">
-        <div class="detail-item hover-lift" data-delay="0.1s">
-          <i class="fas fa-eye"></i>
-          <span>Feels like</span>
-          <span id="feelsLike" class="detail-value"></span>
-        </div>
-        <div class="detail-item hover-lift" data-delay="0.2s">
-          <i class="fas fa-tint"></i>
-          <span>Humidity</span>
-          <span id="humidity" class="detail-value"></span>
-        </div>
-        <div class="detail-item hover-lift" data-delay="0.3s">
-          <i class="fas fa-wind"></i>
-          <span>Wind Speed</span>
-          <span id="windSpeed" class="detail-value"></span>
-        </div>
-        <div class="detail-item hover-lift" data-delay="0.4s">
-          <i class="fas fa-thermometer-half"></i>
-          <span>Pressure</span>
-          <span id="pressure" class="detail-value"></span>
-        </div>
-        <div class="detail-item hover-lift" data-delay="0.5s">
-          <i class="fas fa-sun"></i>
-          <span>UV Index</span>
-          <span id="uvIndex" class="detail-value"></span>
-        </div>
-        <div class="detail-item hover-lift" data-delay="0.6s">
-          <i class="fas fa-eye-low-vision"></i>
-          <span>Visibility</span>
-          <span id="visibility" class="detail-value"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Forecast Section with card animations -->
-    <div id="forecast" class="forecast-section slide-in-up" style="display:none">
-      <h3><i class="fas fa-calendar-alt"></i> 5-Day Forecast</h3>
-      <div id="forecastContainer" class="forecast-grid"></div>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
+    <script>
+      // Remove initial loader when React app loads
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          const loader = document.getElementById("initial-loader");
+          if (loader) {
+            loader.style.opacity = "0";
+            loader.style.transition = "opacity 0.5s ease-out";
+            setTimeout(() => loader.remove(), 500);
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
 </html>
