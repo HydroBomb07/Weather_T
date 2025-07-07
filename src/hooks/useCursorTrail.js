@@ -227,8 +227,8 @@ export const useCursorTrail = () => {
         mainCursor.current.style.transform = `scale(${scale})`;
       }
 
-      if (currentTime - lastTime.current > 6) {
-        // Higher frequency for smoother trail
+      if (currentTime - lastTime.current > 12) {
+        // Reduced frequency for better performance
         addTrailPoint(e.clientX, e.clientY, mouseVelocity);
         lastTime.current = currentTime;
       }
